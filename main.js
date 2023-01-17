@@ -151,13 +151,6 @@ async function dataExchangeWithTheServer(method, type, params, id) {
  * Функция вычисляющая стоимость экскурсии
  * @param {*} guideServiceCost - стоимость услуг гида за один час
  * @param {*} hoursNumber - длительность экскурсии в часах
- * @param {*} isThisDayOff = множитель, отвечающий за повышение стоимости
- * в праздничные и выходные дни. Для будней равне 1, для праздничных и выходных
- * дней (сб,вс) - 1,5
- * @param {*} isItMorning - надбавка за ранее время экскурсии. Для экскурсий,
- * которые начинаются с 9 до 12 часов, равна 400 рублей, для остальных - 0
- * @param {*} isItEvening - надбавка за вечернее время экскурсии. Для экскурсий,
- * которые начинаются с 20 до 23 часов, равна 1000 рублей, для остальных - 0
  * @param {*} numberOfVisitors - надбавка за количество посетителей экскурсии
  * от 1 до 5 человек - 0 рублей
  * от 5 до 10 - 1000 рублей
@@ -165,26 +158,13 @@ async function dataExchangeWithTheServer(method, type, params, id) {
  * @returns {Number} - стоимость экскурсии
  */
 function calculateCost(guideServiceCost,
-    hoursNumber, isThisDayOff, isItMorning,
-    isItEvening, numberOfVisitors) {
+    hoursNumber, numberOfVisitors) {
     // 1, чтобы умножение происходило корректно
     let totalCost = 1;
     // стоимость услуг гида
     totalCost *= guideServiceCost;
     // длительность экскурсии
     totalCost *= hoursNumber;
-    // повышение для празничных дней
-    if (isThisDayOff) {
-        totalCost *= 1.5;
-    }
-    // прибавление надбавки за утренее время
-    if (isItMorning) {
-        totalCost += 400;
-    }
-    // прибавление надбавки за вечернее время
-    if (isItEvening) {
-        totalCost += 1000;
-    }
     // надбавка за количество посетителей экскурсии
     if (numberOfVisitors > 5 && numberOfVisitors <= 10) {
         totalCost += 1000;
@@ -257,16 +237,10 @@ function changeFieldRequestHandler(event) {
     };
     startTime.value = checkStartTime(concatDate);
     if (excursionDate.value != '' && startTime.value != '') {
-        let isThisDayOff = concatDate.getDay() == 6 || concatDate.getDay() == 0;
-        let isItMorning = concatDate.getHours() >= 9 &&
-            concatDate.getHours() <= 12;
-        let isItEvening = concatDate.getHours() >= 20 &&
-            concatDate.getHours() <= 23;
         let calculateTotalCost = calculateCost(priceGuide.value,
-            duration.value, isThisDayOff, isItMorning,
-            isItEvening, numberOfPeople.value);
+            duration.value, numberOfPeople.value);
         if (option1.checked) calculateTotalCost *= 1.3;
-       /* if (option2.checked) calculateTotalCost *= ;             /* ........................................... */
+        if (option2.checked) calculateTotalCost = calculateTotalCost + numberOfPeople.value * 1000 ;            
         totalCost.value = String(Math.ceil(calculateTotalCost)) +
             ' ' + rubleSymbol;
         buttonCreateRequest.dataset.bsDismiss = 'modal';
