@@ -2,7 +2,7 @@ const DEFAULT_URL = 'https://edu.std-900.ist.mospolytech.ru/api';
 const API_KEY = '46bf3881-ff18-40fd-b8f3-2d969286cf0b';
 const PER_PAGE = 8;
 const MAX_TEXT_SELECT_SIZE = 22;
-const alertRemoveTime = 5000;
+const alertRemoveTime = 300;
 const rubleSymbol = '\u20bd';
 
 // контейнер для уведомлений
