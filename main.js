@@ -158,17 +158,6 @@ function checkStartTime(concatDate) {
     return `${chosenHour}:${chosenMinute}`;
 }
 
-//правильная дата
-function getCurrentDate() {
-    let timeNow = new Date();
-    let yearNow = `${timeNow.getFullYear()}`;
-    let monthNow = timeNow.getMonth() + 1 >= 10 ? `${timeNow.getMonth()}` :
-        `0${timeNow.getMonth() + 1}`;
-    let dayNow = timeNow.getDate() + 1 >= 10 ? `${timeNow.getDate() + 1}` :
-        `0${timeNow.getDate() + 1}`;
-    return yearNow + "-" + monthNow + "-" + dayNow;
-}
-
 //описание доп. опций
 function changeFieldRequestHandler(event) {
     let modalWindow = document.querySelector("#createRequest");
