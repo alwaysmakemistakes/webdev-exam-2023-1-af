@@ -275,7 +275,7 @@ async function buttonSendRequestHandler(event) {
             Для просмотра заявок перейдите в ${linkPersonalAccount}`;
             showAlert('success', text);
         } else {
-            let text = `При создании заявки возникла ошибка! :(<br>\
+            let text = `При создании заявки возникла ошибка<br>\
                     Превышен лимит в 10 заявок.<br>\
             Для удаления заявок перейдите в ${linkPersonalAccount}`;
             showAlert('danger', text);
@@ -284,7 +284,7 @@ async function buttonSendRequestHandler(event) {
         if (alertContainer.querySelector('.alert-item')) {
             alertContainer.querySelector('.alert-item').remove();
         }
-        let text = 'Заявка не может быть создана :(<br>\
+        let text = 'Заявка не может быть создана<br>\
                 Пожалуйста, заполните все необходимые поля.';
         showAlert('warning', text);
     }
@@ -543,7 +543,7 @@ async function generateAvailableRoutesOfXItem(page, perPage, qParam) {
             paginationContainer.innerHTML = '';
 
             let text = 'По данному запросу "' + qParam + '" ничего не \
-            найдено :(\<br>Пожалуйста, попробуйте изменить запрос \
+            найдено\<br>Пожалуйста, попробуйте изменить запрос \
                     или зайдите позже.';
             showAlert('warning', text);
             return;
