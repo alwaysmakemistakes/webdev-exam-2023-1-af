@@ -1,6 +1,5 @@
 const DEFAULT_URL = 'https://edu.std-900.ist.mospolytech.ru/api';
 const API_KEY = '46bf3881-ff18-40fd-b8f3-2d969286cf0b';
-
 const PER_PAGE = 8;
 const MAX_TEXT_SELECT_SIZE = 22;
 const alertRemoveTime = 5000;
@@ -26,7 +25,7 @@ let landmarkSelect = document.querySelector('#landmark-select');
 let buttonCreateRequest = document.querySelector('#buttonSendRequest');
 
 //вывод уведомления на экран
-function showAlert(type, text) {
+function Alert(type, text) {
     let alertItem = tempAlert.content.firstElementChild.cloneNode(true);
     let alertSetStyle = alertItem.querySelector('#alertSetStyle');
     alertSetStyle.classList.remove('alert-warning');
@@ -50,7 +49,7 @@ function showAlert(type, text) {
 }
 
 //обмен данными с сервером
-async function dataExchangeWithTheServer(method, type, params, id) {
+async function dataExchangeWithServer(method, type, params, id) {
     let error = false;
     let data = {};
     let url;
@@ -200,16 +199,16 @@ function changeFieldRequestHandler(event) {
         buttonCreateRequest.dataset.bsDismiss = 'modal';
     } else {
         delete buttonCreateRequest.dataset.bsDismiss;
-        console.log('Заполните, пожалуйста все поля');
+        console.log('Заполните, все поля');
     }
 }
 
 //кнопки доп.опций
-async function buttonChooseGuideHandler(event) {
+async function btnChooseGuideHandler(event) {
     let guideId = event.target.closest('.row').dataset.idGuide;
-    let dataGuide = await dataExchangeWithTheServer('get',
+    let dataGuide = await dataExchangeWithServer('get',
         'guide', {}, guideId);
-    let dataRoute = await dataExchangeWithTheServer('get',
+    let dataRoute = await dataExchangeWithServer('get',
         'route', {}, dataGuide.route_id);
     let modalWindow = document.querySelector("#createRequest");
     modalWindow.querySelector('form').reset();
@@ -266,32 +265,32 @@ async function buttonSendRequestHandler(event) {
             'optionFirst': Number(formInputs['option-1'].checked),
             'optionSecond': Number(formInputs['option-2'].checked),
         };
-        data = await dataExchangeWithTheServer('post', 'orders', params);
+        data = await dataExchangeWithServer('post', 'orders', params);
         if (alertContainer.querySelector('.alert-item')) {
             alertContainer.querySelector('.alert-item').remove();
         }
         if (data.id != undefined) {
             let text = `Заявка успешно создана! :)<br>\
             Для просмотра заявок перейдите в ${linkPersonalAccount}`;
-            showAlert('success', text);
+            Alert('success', text);
         } else {
             let text = `При создании заявки возникла ошибка<br>\
                     Превышен лимит в 10 заявок.<br>\
             Для удаления заявок перейдите в ${linkPersonalAccount}`;
-            showAlert('danger', text);
+            Alert('danger', text);
         }
     } else {
         if (alertContainer.querySelector('.alert-item')) {
             alertContainer.querySelector('.alert-item').remove();
         }
         let text = 'Заявка не может быть создана<br>\
-                Пожалуйста, заполните все необходимые поля.';
-        showAlert('warning', text);
+                Заполните все необходимые поля.';
+        Alert('warning', text);
     }
 }
 
 //гиды 
-function renderGuides(data) {
+function renGuides(data) {
     tableGuides.innerHTML = '';
     let itemGuides =
         tempGuides.content.firstElementChild.cloneNode(true);
@@ -308,9 +307,7 @@ function renderGuides(data) {
         divImg.append(imgGuide);
         itemGuides.querySelector('.img').innerHTML = '';
         itemGuides.querySelector('.img').append(divImg);
-
         itemGuides.querySelector('.name').innerHTML = data[i]['name'];
-
         if (data[i]['language'].includes(' ')) {
             let newData = data[i]['language'].split(' ');
             let langContainer = document.createElement('div');
@@ -326,8 +323,6 @@ function renderGuides(data) {
         } else {
             itemGuides.querySelector('.lang').innerHTML = data[i]['language'];
         }
-
-        
         let exp = data[i]['workExperience'];
         if (exp == 1) {
             itemGuides.querySelector('.exp').innerHTML =
@@ -358,7 +353,7 @@ function renderGuides(data) {
         button.dataset.bsToggle = 'modal';
         button.dataset.bsTarget = '#createRequest';
         button.innerHTML = 'Выбрать';
-        button.onclick = buttonChooseGuideHandler;
+        button.onclick = btnChooseGuideHandler;
         choose.innerHTML = '';
         choose.append(button);
         tableGuides.append(itemGuides);
@@ -366,25 +361,24 @@ function renderGuides(data) {
 }
 
 //генерирование гидов
-function generateGuides(data) {
-    renderGuides(data);
+function genGuides(data) {
+    renGuides(data);
 }
 
 //кнопка выбора маршрута
 async function buttonChooseRouteHandler(event) {
     let row = event.target.closest('.row');
     let idRoute = row.dataset.idRoute;
-    let dataRoute = await dataExchangeWithTheServer('get', 'route',
+    let dataRoute = await dataExchangeWithServer('get', 'route',
         {}, idRoute);
-
-    let data = await dataExchangeWithTheServer('get', 'routes', {}, idRoute);
+    let data = await dataExchangeWithServer('get', 'routes', {}, idRoute);
     let nameRoute = '"' + row.querySelector('.name').innerHTML + '"';
     document.querySelector('.guides-name-of-route').innerHTML = nameRoute;
-    generateGuides(data);
+    genGuides(data);
 }
 
 //доступные маршруты
-function renderAvailableRoutes(data) {
+function renAvailableRoutes(data) {
     WalkingRoutes.innerHTML = '';
     let itemWalkingRoutes = 
     tempWalkingRoutes.content.firstElementChild.cloneNode(true);
@@ -436,7 +430,7 @@ function createPageBtn(page, classes = []) {
 }
 
 //отрисовка элементов навигации
-function renderPaginationElement(currentPage, totalPages) {
+function renPaginationElement(currentPage, totalPages) {
     currentPage = parseInt(currentPage);
     totalPages = parseInt(totalPages);
     let btn;
@@ -444,13 +438,10 @@ function renderPaginationElement(currentPage, totalPages) {
     paginationContainer.innerHTML = '';
     let buttonsContainer = document.createElement('ul');
     buttonsContainer.classList.add('pagination');
-
     btn = createPageBtn(1, ['first-page-btn']);
     btn.innerHTML = 'Первая страница';
-
     li = document.createElement('li');
     li.classList.add('page-item');
-
     if (currentPage == 1) {
         li.classList.add('disabled');
     }
@@ -484,7 +475,6 @@ function renderPaginationElement(currentPage, totalPages) {
 
 //отрисовка селектора для фильтрации маршрутов 
 function renderSelectorOfAvailableRoutes(data) {
-
     let setMainObject = new Set();
     for (let i = 0; i < Object.keys(data).length; i++) {
         let mainObject = data[i]['mainObject'];
@@ -515,7 +505,7 @@ function renderSelectorOfAvailableRoutes(data) {
 }
 //фильтрация по названию
 async function getAndFilterData(qParam) {
-    let data = await dataExchangeWithTheServer('get', 'routes');
+    let data = await dataExchangeWithServer('get', 'routes');
     if (qParam) {
         data = data.filter(value =>
             value['name'].toUpperCase().includes(qParam.toUpperCase()));
@@ -526,7 +516,7 @@ async function getAndFilterData(qParam) {
 }
 
 //вывод ограниченного количества данных о доступных маршрутах
-async function generateAvailableRoutesOfXItem(page, perPage, qParam) {
+async function genAvailableRoutesItem(page, perPage, qParam) {
     let data = await getAndFilterData(qParam);
     let dataToRender = [];
     let totalPages = Math.ceil(data.length / perPage);
@@ -543,9 +533,9 @@ async function generateAvailableRoutesOfXItem(page, perPage, qParam) {
             paginationContainer.innerHTML = '';
 
             let text = 'По данному запросу "' + qParam + '" ничего не \
-            найдено\<br>Пожалуйста, попробуйте изменить запрос \
+            найдено\<br>Попробуйте изменить запрос \
                     или зайдите позже.';
-            showAlert('warning', text);
+            Alert('warning', text);
             return;
         }
 
@@ -553,21 +543,21 @@ async function generateAvailableRoutesOfXItem(page, perPage, qParam) {
         for (let i = (page - 1) * perPage; i < max; i++) {
             dataToRender.push(data[i]);
         }
-        renderAvailableRoutes(dataToRender);
-        renderPaginationElement(page, totalPages);
+        renAvailableRoutes(dataToRender);
+        renPaginationElement(page, totalPages);
     }
 }
 
 //обработка изменения значения селектора достопримечательностей
 function selectorOfAvailableRoutesHandler(event) {
-    generateAvailableRoutesOfXItem(1, PER_PAGE, searchField.value);
+    genAvailableRoutesItem(1, PER_PAGE, searchField.value);
 }
 
 //обработчик для кнопок навигации по странице
 function pageBtnHandler(event) {
     if (!event.target.classList.contains('page-link')) return;
     if (event.target.classList.contains('disabled')) return;
-    generateAvailableRoutesOfXItem(event.target.dataset.page, 
+    genAvailableRoutesItem(event.target.dataset.page, 
         PER_PAGE, searchField.value);
 }
 
@@ -579,7 +569,7 @@ async function generateSelector() {
 
 //поле поиска
 async function searchFieldHandler(event) {
-    generateAvailableRoutesOfXItem(1,
+    genAvailableRoutesItem(1,
         PER_PAGE,
         event.target.value);
     generateSelector();
@@ -588,14 +578,12 @@ async function searchFieldHandler(event) {
 
 //делигирование
 window.onload = function () {
-    generateAvailableRoutesOfXItem(1, PER_PAGE);
+    genAvailableRoutesItem(1, PER_PAGE);
     generateSelector();
     document.querySelector('.pagination-bar').onclick = pageBtnHandler;
     searchField.oninput = searchFieldHandler;
-
     landmarkSelect.onchange = selectorOfAvailableRoutesHandler;
     buttonCreateRequest.onclick = buttonSendRequestHandler;
-
     document.querySelector('#excursion-date').onchange = 
     changeFieldRequestHandler;
     document.querySelector('#start-time').onchange = changeFieldRequestHandler;
