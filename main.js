@@ -190,10 +190,13 @@ function changeFieldRequestHandler(event) {
     };
     startTime.value = checkStartTime(concatDate);
     if (excursionDate.value != '' && startTime.value != '') {
-        let calculateTotalCost = calculateCost(priceGuide.value, duration.value, numberOfPeople.value);
+        let calculateTotalCost = calculateCost(priceGuide.value,
+            duration.value, numberOfPeople.value);
         if (option1.checked) calculateTotalCost *= 1.3;
-        if (option2.checked) calculateTotalCost = calculateTotalCost + numberOfPeople.value * 1000 ;            
-        totalCost.value = String(Math.ceil(calculateTotalCost)) + ' ' + rubleSymbol;
+        if (option2.checked) calculateTotalCost = calculateTotalCost 
+        + numberOfPeople.value * 1000 ;            
+        totalCost.value = String(Math.ceil(calculateTotalCost)) +
+            ' ' + rubleSymbol;
         buttonCreateRequest.dataset.bsDismiss = 'modal';
     } else {
         delete buttonCreateRequest.dataset.bsDismiss;
@@ -204,8 +207,10 @@ function changeFieldRequestHandler(event) {
 //кнопки доп.опций
 async function buttonChooseGuideHandler(event) {
     let guideId = event.target.closest('.row').dataset.idGuide;
-    let dataGuide = await dataExchangeWithTheServer('get', 'guide', {}, guideId);
-    let dataRoute = await dataExchangeWithTheServer('get', 'route', {}, dataGuide.route_id);
+    let dataGuide = await dataExchangeWithTheServer('get',
+        'guide', {}, guideId);
+    let dataRoute = await dataExchangeWithTheServer('get',
+        'route', {}, dataGuide.route_id);
     let modalWindow = document.querySelector("#createRequest");
     modalWindow.querySelector('form').reset();
     let formInputs = modalWindow.querySelector("form").elements;
@@ -215,11 +220,15 @@ async function buttonChooseGuideHandler(event) {
     let routeName = formInputs['route-name'];
     let idRoute = formInputs['idRoute'];
     let excursionDate = formInputs['excursion-date'];
-    let option1Name = modalWindow.querySelector('#createRequest .option-1 .form-check-label');
-    let option1Desc = modalWindow.querySelector('#createRequest .option-1 .description');
+    let option1Name = modalWindow.querySelector('#createRequest \
+    .option-1 .form-check-label');
+    let option1Desc = modalWindow.querySelector('#createRequest \
+    .option-1 .description');
     let option1amount = formInputs['discount-amount-1'];
-    let option2Name = modalWindow.querySelector('#createRequest .option-2 .form-check-label');
-    let option2Desc = modalWindow.querySelector('#createRequest .option-2 .description');
+    let option2Name = modalWindow.querySelector('#createRequest \
+    .option-2 .form-check-label');
+    let option2Desc = modalWindow.querySelector('#createRequest \
+    .option-2 .description');
     let option2amount = formInputs['discount-amount-2'];
     fio.value = dataGuide.name;
     idGuide.value = dataGuide.id;
@@ -228,10 +237,12 @@ async function buttonChooseGuideHandler(event) {
     idRoute.value = dataRoute.id;
     excursionDate.value = getCurrentDate();
     option1Name.innerHTML = 'Быстрый выезд';
-    option1Desc.innerHTML = 'Быстрый выезд гида (в течение часа). Повышает стоимость на ';
+    option1Desc.innerHTML = 'Быстрый выезд гида (в течение часа).\
+    Повышает стоимость на ';
     option1amount.value = '30%';
     option2Name.innerHTML = 'Легкие закуски и горячие напитки';
-    option2Desc.innerHTML = 'Легкие закуски и горячие напитки во время экскурсии \
+    option2Desc.innerHTML = 'Легкие закуски и горячие\
+    напитки во время экскурсии \
     увеличивают стоимость за каждого посетителя на ';
     option2amount.value = '1000 рублей';
     changeFieldRequestHandler();
@@ -279,11 +290,6 @@ async function buttonSendRequestHandler(event) {
     }
 }
 
-//генерирование гидов
-function generateGuides(data) {
-    renderGuides(data);
-}
-
 //гиды 
 function renderGuides(data) {
     tableGuides.innerHTML = '';
@@ -318,8 +324,7 @@ function renderGuides(data) {
             itemGuides.querySelector('.lang').innerHTML = '';
             itemGuides.querySelector('.lang').append(langContainer);
         } else {
-            itemGuides.querySelector('.lang').innerHTML =
-                data[i]['language'];
+            itemGuides.querySelector('.lang').innerHTML = data[i]['language'];
         }
 
         
@@ -360,6 +365,11 @@ function renderGuides(data) {
     }
 }
 
+//генерирование гидов
+function generateGuides(data) {
+    renderGuides(data);
+}
+
 //кнопка выбора маршрута
 async function buttonChooseRouteHandler(event) {
     let row = event.target.closest('.row');
@@ -376,18 +386,22 @@ async function buttonChooseRouteHandler(event) {
 //доступные маршруты
 function renderAvailableRoutes(data) {
     WalkingRoutes.innerHTML = '';
-    let itemWalkingRoutes = tempWalkingRoutes.content.firstElementChild.cloneNode(true);
+    let itemWalkingRoutes = 
+    tempWalkingRoutes.content.firstElementChild.cloneNode(true);
     WalkingRoutes.append(itemWalkingRoutes);
 
     // перебор и вывод строк таблицы
     for (let i = 0; i < data.length; i++) {
-        itemWalkingRoutes = tempWalkingRoutes.content.firstElementChild.cloneNode(true);
+        itemWalkingRoutes = 
+        tempWalkingRoutes.content.firstElementChild.cloneNode(true);
 
         // назначение скрытого идентификатора
         itemWalkingRoutes.dataset.idRoute = data[i]['id']; 
         itemWalkingRoutes.querySelector('.name').innerHTML = data[i]['name']; 
-        itemWalkingRoutes.querySelector('.desc').innerHTML = data[i]['description']; 
-        itemWalkingRoutes.querySelector('.main-object').innerHTML = data[i]['mainObject']; 
+        itemWalkingRoutes.querySelector('.desc').innerHTML = 
+        data[i]['description']; 
+        itemWalkingRoutes.querySelector('.main-object').innerHTML = 
+        data[i]['mainObject']; 
         let choose = itemWalkingRoutes.querySelector('.choose'); 
 
         // создание элемента кнопки, при помощи которой выбирается маршрут
@@ -553,7 +567,8 @@ function selectorOfAvailableRoutesHandler(event) {
 function pageBtnHandler(event) {
     if (!event.target.classList.contains('page-link')) return;
     if (event.target.classList.contains('disabled')) return;
-    generateAvailableRoutesOfXItem(event.target.dataset.page, PER_PAGE, searchField.value);
+    generateAvailableRoutesOfXItem(event.target.dataset.page, 
+        PER_PAGE, searchField.value);
 }
 
 //генерация селектора
@@ -581,10 +596,12 @@ window.onload = function () {
     landmarkSelect.onchange = selectorOfAvailableRoutesHandler;
     buttonCreateRequest.onclick = buttonSendRequestHandler;
 
-    document.querySelector('#excursion-date').onchange = changeFieldRequestHandler;
+    document.querySelector('#excursion-date').onchange = 
+    changeFieldRequestHandler;
     document.querySelector('#start-time').onchange = changeFieldRequestHandler;
     document.querySelector('#duration').onchange = changeFieldRequestHandler;
-    document.querySelector('#number-of-people').onchange = changeFieldRequestHandler;
+    document.querySelector('#number-of-people').onchange = 
+    changeFieldRequestHandler;
     document.querySelector('#option-1').onchange = changeFieldRequestHandler;
     document.querySelector('#option-2').onchange = changeFieldRequestHandler;
 
