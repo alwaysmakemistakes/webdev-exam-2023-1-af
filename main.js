@@ -351,7 +351,11 @@ function renderGuides(data) {
         itemGuides.querySelector('.price').innerHTML = data[i]['pricePerHour'];
         
         let choose = itemGuides.querySelector('.choose');
-
+        choose.classList.remove('choose');
+        choose.classList.add('choose-btn');
+        choose.classList.add('d-flex');
+        choose.classList.add('justify-content-center');
+        choose.classList.add('align-items-center');
         let button = document.createElement('button');
         button.classList.add('button');
         button.dataset.bsToggle = 'modal';
@@ -395,14 +399,19 @@ function renderAvailableRoutes(data) {
         let choose = itemWalkingRoutes.querySelector('.choose'); 
 
         // создание элемента кнопки, при помощи которой выбирается маршрут
-        let button = document.createElement('a');
-        button.href = '#list-of-guides';
-        button.classList.add('button');
-        button.innerHTML = 'Выбрать';
+        choose.classList.remove('choose');
+        choose.classList.add('choose-btn'); 
+        choose.classList.add('d-flex'); 
+        choose.classList.add('justify-content-center'); 
+        choose.classList.add('align-items-center'); 
+        let button = document.createElement('a'); 
+        button.href = '#list-of-guides'; 
+        button.classList.add('button'); 
+        button.innerHTML = 'Выбрать'; 
         button.onclick = buttonChooseRouteHandler;
-        choose.innerHTML = '';
-        choose.append(button);
-        WalkingRoutes.append(itemWalkingRoutes);
+        choose.innerHTML = ''; 
+        choose.append(button); 
+        WalkingRoutes.append(itemWalkingRoutes); 
     }
 }
 
