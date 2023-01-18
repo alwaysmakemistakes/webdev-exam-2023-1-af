@@ -1,13 +1,11 @@
 const DEFAULT_URL = 'https://edu.std-900.ist.mospolytech.ru/api';
 const API_KEY = '46bf3881-ff18-40fd-b8f3-2d969286cf0b';
 
-const PER_PAGE = 10;
-const MAX_TEXT_SELECT_SIZE = 30;
-// время "жизни" уведомления
+const PER_PAGE = 8;
+const MAX_TEXT_SELECT_SIZE = 22;
 const alertRemoveTime = 5000;
 const rubleSymbol = '\u20bd';
 
-// определение основных конструкций
 // контейнер для уведомлений
 let alertContainer = document.querySelector('.alert-container');
 // уведомление-шаблон
@@ -15,7 +13,7 @@ let tempAlert = document.querySelector('#alert-template');
 // уведомление об успешной операции
 let successAlert = document.querySelector('#alert-success');
 let dangerAlert = document.querySelector('#alert-danger');
-// получение кнопки поиска (для карты)
+// получение кнопки поиска
 let tempWalkingRoutes = document.querySelector('#table-of-walking-routes');
 let WalkingRoutes = document.querySelector('.table-walking-routes');
 let tempGuides = document.querySelector('#table-of-guides');
@@ -25,16 +23,10 @@ let paginationContainer = document.querySelector('.pagination-bar');
 let landmarkSelect = document.querySelector('#landmark-select');
 
 // модальное окно
-// кнопка для создания заявки
 let buttonCreateRequest = document.querySelector('#buttonSendRequest');
 
-/**
- * Функция для вывода уведомления на экран
- * @param {String} type - тип уведомления: success, warning or danger
- * @param {String} text - текст, который необходимо вывести в уведомлении
- */
+//вывод уведомления на экран
 function showAlert(type, text) {
-    // клонирование шаблона уведомления
     let alertItem = tempAlert.content.firstElementChild.cloneNode(true);
     let alertSetStyle = alertItem.querySelector('#alertSetStyle');
     alertSetStyle.classList.remove('alert-warning');
@@ -53,23 +45,11 @@ function showAlert(type, text) {
         alertItem.querySelector('.text-alert-item').innerHTML = text;
 
     }
-    // добавление в контейнер для уведомлений
     alertContainer.append(alertItem);
-    // задание удаления уведомления по таймеру 
     setTimeout(() => alertItem.remove(), alertRemoveTime);
 }
 
-/**
- * Функция для взаимодействия с сервером
- * @param {string} method - метод запроса (get, post, put, delete)
- * @param {string} type - тип запрашиваемого ресурса 
- * (routes, orders, guide, route);
- * type = guide, route используются для получения данных о 
- * конкретном гиде или маршруте
- * @param {object} params - параметры, передаваемые серверу
- * @param {number} id - идентификатор маршрута или заявки
- * @returns {object} - объект json, содержащий ответ сервера
- */
+//обмен данными с сервером
 async function dataExchangeWithTheServer(method, type, params, id) {
     let error = false;
     let data = {};
@@ -78,23 +58,18 @@ async function dataExchangeWithTheServer(method, type, params, id) {
         if (method == 'get') {
             if (type == 'routes') {
                 if (id != undefined) {
-                    // получить список гидов
                     url = new URL(`${DEFAULT_URL}/routes/${id}/guides`);
                 } else {
-                    // получить список маршрутов
                     url = new URL(`${DEFAULT_URL}/routes`);
                 }
             };
             if (type == 'orders') {
                 if (id != undefined) {
-                    // посмотреть заявку
                     url = new URL(`${DEFAULT_URL}/orders/${id}`);
                 } else {
-                    // получить спсок заявок
                     url = new URL(`${DEFAULT_URL}/orders`);
                 }
             }
-            // если нужно получить информацию о конкретном гиде
             if (type == 'guide') {
                 if (id != undefined) {
                     url = new URL(`${DEFAULT_URL}/guides/${id}`);
@@ -102,7 +77,6 @@ async function dataExchangeWithTheServer(method, type, params, id) {
                     error = true;
                 }
             }
-            // если нужно получить информацию о конкретном маршруте
             if (type == 'route') {
                 if (id != undefined) {
                     url = new URL(`${DEFAULT_URL}/routes/${id}`);
@@ -112,12 +86,10 @@ async function dataExchangeWithTheServer(method, type, params, id) {
             }
         }
         if (method == 'post' && type == 'orders') {
-            // добавить заявку
             url = new URL(`${DEFAULT_URL}/orders`);
         }
         if ((method == 'put' || method == 'delete')
             && type == 'orders' && id != undefined) {
-            // редактировать или удалить заявку
             url = new URL(`${DEFAULT_URL}/orders/${id}`);
         }
     } else {
@@ -133,7 +105,6 @@ async function dataExchangeWithTheServer(method, type, params, id) {
     }
     if (url != undefined) {
         url.searchParams.append('api_key', API_KEY);
-        // отправка запросов
         data = await fetch(url, {
             method: method.toUpperCase(),
             body: bodyParams,
@@ -147,25 +118,12 @@ async function dataExchangeWithTheServer(method, type, params, id) {
     return data;
 }
 
-/**
- * Функция вычисляющая стоимость экскурсии
- * @param {*} guideServiceCost - стоимость услуг гида за один час
- * @param {*} hoursNumber - длительность экскурсии в часах
- * @param {*} numberOfVisitors - надбавка за количество посетителей экскурсии
- * от 1 до 5 человек - 0 рублей
- * от 5 до 10 - 1000 рублей
- * от 10 до 20 - 1500 рублей
- * @returns {Number} - стоимость экскурсии
- */
+//вычисление стоимости
 function calculateCost(guideServiceCost,
     hoursNumber, numberOfVisitors) {
-    // 1, чтобы умножение происходило корректно
     let totalCost = 1;
-    // стоимость услуг гида
     totalCost *= guideServiceCost;
-    // длительность экскурсии
     totalCost *= hoursNumber;
-    // надбавка за количество посетителей экскурсии
     if (numberOfVisitors > 5 && numberOfVisitors <= 10) {
         totalCost += 1000;
     }
@@ -175,6 +133,7 @@ function calculateCost(guideServiceCost,
     return totalCost;
 }
 
+//время начала
 function checkStartTime(concatDate) {
     let chosenHour = concatDate.getHours();
     let chosenMinute = concatDate.getMinutes();
@@ -200,8 +159,8 @@ function checkStartTime(concatDate) {
     return `${chosenHour}:${chosenMinute}`;
 }
 
+//правильная дата
 function getCurrentDate() {
-    // заполнение даты экскурсии текущей датой
     let timeNow = new Date();
     let yearNow = `${timeNow.getFullYear()}`;
     let monthNow = timeNow.getMonth() + 1 >= 10 ? `${timeNow.getMonth()}` :
@@ -211,16 +170,10 @@ function getCurrentDate() {
     return yearNow + "-" + monthNow + "-" + dayNow;
 }
 
-/**
- * Функция, рассчитывающая и обновляющая итоговую стоимость экскурсии
- * @param {*} event - событие
- */
+//описание доп. опций
 function changeFieldRequestHandler(event) {
-    // обращение к модальному окну
     let modalWindow = document.querySelector("#createRequest");
-    // получение данных формы
     let formInputs = modalWindow.querySelector("form").elements;
-    // получение необходимых полей
     let priceGuide = formInputs['priceGuide'];
     let excursionDate = formInputs['excursion-date'];
     let startTime = formInputs['start-time'];
@@ -249,27 +202,17 @@ function changeFieldRequestHandler(event) {
         console.log('Заполните, пожалуйста все поля');
     }
 }
-/**
- * Функция для обработки выбора гида (нажатия кнопки "выбрать")
- * В результате срабатывания нажатия появляется модальное окно
- * @param {object} event - событие
- */
+
+//кнопки доп.опций
 async function buttonChooseGuideHandler(event) {
-    // получение идентификатора гида
     let guideId = event.target.closest('.row').dataset.idGuide;
-    // получение данных о гиде
     let dataGuide = await dataExchangeWithTheServer('get',
         'guide', {}, guideId);
-    // получение данных о маршруте
     let dataRoute = await dataExchangeWithTheServer('get',
         'route', {}, dataGuide.route_id);
-    // обращение к модальному окну
     let modalWindow = document.querySelector("#createRequest");
-    // сброс формы
     modalWindow.querySelector('form').reset();
-    // получение елементов формы
     let formInputs = modalWindow.querySelector("form").elements;
-    // получение необходимых полей
     let fio = formInputs['fio-guide'];
     let idGuide = formInputs['idGuide'];
     let priceGuide = formInputs['priceGuide'];
@@ -286,7 +229,6 @@ async function buttonChooseGuideHandler(event) {
     let option2Desc = modalWindow.querySelector('#createRequest \
         .option-2 .description');
     let option2amount = formInputs['discount-amount-2'];
-    // заполнение полей необходимыми данными
     fio.value = dataGuide.name;
     idGuide.value = dataGuide.id;
     priceGuide.value = dataGuide.pricePerHour;
@@ -302,11 +244,8 @@ async function buttonChooseGuideHandler(event) {
     option2amount.value = '1000 рублей';
     changeFieldRequestHandler();
 }
-/**
- * Функция обрабатывающая нажатие клавиши в модальном окне,
- * предназначенном для создания заявки
- * @param {object} event - событие 
- */
+
+//кнопка отправить
 async function buttonSendRequestHandler(event) {
     let modalWindow = event.target.closest(".modal");
     let formInputs = modalWindow.querySelector("form").elements;
@@ -325,8 +264,6 @@ async function buttonSendRequestHandler(event) {
             'optionSecond': Number(formInputs['option-2'].checked),
         };
         data = await dataExchangeWithTheServer('post', 'orders', params);
-        // выводить предупреждение, что заявка создана
-        // удаление старых уведомлений
         if (alertContainer.querySelector('.alert-item')) {
             alertContainer.querySelector('.alert-item').remove();
         }
@@ -341,8 +278,6 @@ async function buttonSendRequestHandler(event) {
             showAlert('danger', text);
         }
     } else {
-        // выводить предупреждение, что заявка не может быть создана
-        // удаление старых уведомлений
         if (alertContainer.querySelector('.alert-item')) {
             alertContainer.querySelector('.alert-item').remove();
         }
@@ -352,28 +287,21 @@ async function buttonSendRequestHandler(event) {
     }
 }
 
-/**
- * Функция, предназначенная для отображения гидов по выбранному маршруту
- * @param {object} data - массив, содержащий ифнормацию о гидах 
- */
+//генерирование гидов
+function generateGuides(data) {
+    renderGuides(data);
+}
+
+//гиды 
 function renderGuides(data) {
-    // очистка прошлых данных о гидах
     tableGuides.innerHTML = '';
-    // формирование шапки таблицы путем клонирования шаблона
     let itemGuides =
         tempGuides.content.firstElementChild.cloneNode(true);
-    // добавление шапки таблицы в таблицу
     tableGuides.append(itemGuides);
-    // перебор и вывод строк таблицы
     for (let i = 0; i < data.length; i++) {
-        // формирование элемента путем клонирования шаблона
-        itemGuides =
-            tempGuides.content.firstElementChild.cloneNode(true);
-        // назначение скрытого идентификатора
-        // используется для поиска информации по гиду
-        itemGuides.dataset.idGuide =
-            data[i]['id'];
-        // добавление иконки
+        itemGuides = tempGuides.content.firstElementChild.cloneNode(true);
+        itemGuides.dataset.idGuide = data[i]['id'];
+
         let imgGuide = document.createElement('img');
         imgGuide.src = 'images/guide.png';
         imgGuide.classList.add('icon');
@@ -382,10 +310,9 @@ function renderGuides(data) {
         divImg.append(imgGuide);
         itemGuides.querySelector('.img').innerHTML = '';
         itemGuides.querySelector('.img').append(divImg);
-        // добавление ФИО гида
-        itemGuides.querySelector('.name').innerHTML =
-            data[i]['name'];
-        // добавление языков, которыми владеет гид
+
+        itemGuides.querySelector('.name').innerHTML = data[i]['name'];
+
         if (data[i]['language'].includes(' ')) {
             let newData = data[i]['language'].split(' ');
             let langContainer = document.createElement('div');
@@ -403,7 +330,7 @@ function renderGuides(data) {
                 data[i]['language'];
         }
 
-        // добавление опыта работы
+        
         let exp = data[i]['workExperience'];
         if (exp == 1) {
             itemGuides.querySelector('.exp').innerHTML =
@@ -420,53 +347,24 @@ function renderGuides(data) {
 
         }
 
-        // добавление стоимости услуг гида
-        itemGuides.querySelector('.price').innerHTML =
-            data[i]['pricePerHour'];
-        // выбор области кнопки для выбора гида
+        
+        itemGuides.querySelector('.price').innerHTML = data[i]['pricePerHour'];
+        
         let choose = itemGuides.querySelector('.choose');
-        // назначение стилей
-        // удаление стандартного стиля
-        choose.classList.remove('choose');
-        // назначение стиля кнопки
-        choose.classList.add('choose-btn');
-        // отображение display: flex
-        choose.classList.add('d-flex');
-        // выравнивание
-        choose.classList.add('justify-content-center');
-        choose.classList.add('align-items-center');
-        // создание элемента кнопки, при помощи которой выбирается маршрут
+
         let button = document.createElement('button');
-        // добавление ссылки стилей кнопки
         button.classList.add('button');
-        // добавление атрибутов для работы с модальным окном
         button.dataset.bsToggle = 'modal';
         button.dataset.bsTarget = '#createRequest';
-        // добавление содержания кнопке
         button.innerHTML = 'Выбрать';
-        // назначение обработчика на кнопку 
         button.onclick = buttonChooseGuideHandler;
-        // зачистка 
         choose.innerHTML = '';
-        // добавление кнопки
         choose.append(button);
-        // добавление строки таблицы в таблицу
         tableGuides.append(itemGuides);
     }
 }
 
-/**
- * Функция, для обработки полученной информации о гидах
- * @param {object} data - сырой массив, содержащий информацию о гидах
- */
-function generateGuides(data) {
-    renderGuides(data);
-}
-
-/**
- * Функция для обработки выбора маршрута (нажатия кнопки "выбрать")
- * @param {object} event - событие
- */
+//кнопка выбора маршрута
 async function buttonChooseRouteHandler(event) {
     let row = event.target.closest('.row');
     let idRoute = row.dataset.idRoute;
@@ -479,133 +377,74 @@ async function buttonChooseRouteHandler(event) {
     generateGuides(data);
 }
 
-/**
- * Функция для загрузки на страницу данных о доступных маршрутах
- * @param {object} data - данные о доступных маршрутах
- */
+//доступные маршруты
 function renderAvailableRoutes(data) {
-    // очистка прошлых данных
     WalkingRoutes.innerHTML = '';
-    // формирование шапки таблицы путем клонирования шаблона
-    let itemWalkingRoutes =
-        tempWalkingRoutes.content.firstElementChild.cloneNode(true);
-    // добавление шапки таблицы в таблицу
+    let itemWalkingRoutes = tempWalkingRoutes.content.firstElementChild.cloneNode(true);
     WalkingRoutes.append(itemWalkingRoutes);
+
     // перебор и вывод строк таблицы
     for (let i = 0; i < data.length; i++) {
-        // формирование элемента путем клонирования шаблона
-        itemWalkingRoutes =
-            tempWalkingRoutes.content.firstElementChild.cloneNode(true);
+        itemWalkingRoutes = tempWalkingRoutes.content.firstElementChild.cloneNode(true);
+
         // назначение скрытого идентификатора
-        // используется для поиска гидов по маршруту
-        itemWalkingRoutes.dataset.idRoute =
-            data[i]['id'];
-        // назначение названия маршрута
-        itemWalkingRoutes.querySelector('.name').innerHTML =
-            data[i]['name'];
-        // назначение описания маршрута
-        itemWalkingRoutes.querySelector('.desc').innerHTML =
-            data[i]['description'];
-        // назначение описания главных объектов на маршруте
-        itemWalkingRoutes.querySelector('.main-object').innerHTML =
-            data[i]['mainObject'];
-        // выбор области кнопки для выбора маршрута
-        let choose = itemWalkingRoutes.querySelector('.choose');
-        // назначение стилей
-        // удаление стандартного стиля
-        choose.classList.remove('choose');
-        // назначение стиля кнопки
-        choose.classList.add('choose-btn');
-        // отображение display: flex
-        choose.classList.add('d-flex');
-        // выравнивание
-        choose.classList.add('justify-content-center');
-        choose.classList.add('align-items-center');
+        itemWalkingRoutes.dataset.idRoute = data[i]['id']; 
+        itemWalkingRoutes.querySelector('.name').innerHTML = data[i]['name']; 
+        itemWalkingRoutes.querySelector('.desc').innerHTML = data[i]['description']; 
+        itemWalkingRoutes.querySelector('.main-object').innerHTML = data[i]['mainObject']; 
+        let choose = itemWalkingRoutes.querySelector('.choose'); 
+
         // создание элемента кнопки, при помощи которой выбирается маршрут
         let button = document.createElement('a');
-        //добавление ссыки на секцию с информацией о гидах
         button.href = '#list-of-guides';
-        // добавление ссылки стилей кнопки
         button.classList.add('button');
-        // добавление содержания кнопке
         button.innerHTML = 'Выбрать';
-        // назначение обработчика на кнопку 
         button.onclick = buttonChooseRouteHandler;
-        // зачистка 
         choose.innerHTML = '';
-        // добавление кнопки
         choose.append(button);
-        // добавление строки таблицы в таблицу
         WalkingRoutes.append(itemWalkingRoutes);
     }
 }
 
-/**
- * Функция для создания кнопки для навигации по страницам
- * @param {number} page - страница
- * @param {object} classes - назначенные классы
- * @returns {button} - кнопка
- */
+//создание кнопки для навигации по страницам
 function createPageBtn(page, classes = []) {
-    // создание кнопки-ссылки
-    // сслыка используется для того, 
-    // чтобы при нажатии возвращаться в начало выдачи результатов
-    let btn = document.createElement('a');
-    // в цикле кнопке назначаются классы 
+    let btn = document.createElement('a'); 
     for (cls of classes) {
         btn.classList.add(cls);
     }
-    // добавление стилей bootstrap
+    // bootstrap pagination
     btn.classList.add('page-link');
-    btn.classList.add('d-flex');
-    btn.classList.add('align-items-center');
-    // установка данных внутрь кода кнопки 
     btn.dataset.page = page;
-    // присвоение номера страницы кнопке 
     btn.innerHTML = page;
-    // назначение якоря на начало выдачи результатов
     btn.href = '#label-search-field';
     return btn;
 }
 
-/**
- * Функция для отрисовки элементов навигации
- * @param {*} currentPage - номер текущей страницы
- * @param {*} totalPages - общее количество страниц
- */
+//отрисовка элементов навигации
 function renderPaginationElement(currentPage, totalPages) {
-    // страховка, на случай, если будет передана строка, содержащия число
     currentPage = parseInt(currentPage);
     totalPages = parseInt(totalPages);
-    // объявление кнопки и инициализация раздела навигации по страницам
     let btn;
     let li;
-    // обнуление прошлых значений
     paginationContainer.innerHTML = '';
-
-    // создание контейнера, для хранения кнопок навигации по страницам
     let buttonsContainer = document.createElement('ul');
-    // назначаение класса
     buttonsContainer.classList.add('pagination');
 
-    // создание кнопки "Первая страница"
     btn = createPageBtn(1, ['first-page-btn']);
     btn.innerHTML = 'Первая страница';
-    // создание элемента списка и назначение необходимых классов
+
     li = document.createElement('li');
     li.classList.add('page-item');
-    // если страница 1, то скрытие кнопки "Первая страница"
+
     if (currentPage == 1) {
         li.classList.add('disabled');
     }
     li.append(btn);
-    // добавление кнопки "Первая страница" в контейнер для кнопок
     buttonsContainer.append(li);
 
-    // вычисление максимального и минимального значения
     let start = Math.max(currentPage - 2, 1);
     let end = Math.min(currentPage + 2, totalPages);
-    // в цикле созданются и добавляются кнопки для навигации по страницам
+
     for (let i = start; i <= end; i++) {
         let li = document.createElement('li');
         li.classList.add('page-item');
@@ -614,32 +453,23 @@ function renderPaginationElement(currentPage, totalPages) {
         buttonsContainer.append(li);
     }
 
-    // создание кнопки "Последняя страница"
     btn = createPageBtn(totalPages, ['last-page-btn']);
     btn.innerHTML = 'Последняя страница';
-    // создание элемента списка и назначение необходимых классов
+
     li = document.createElement('li');
     li.classList.add('page-item');
-    // кнопка скрывается при достижении конца страниц или при их отсутствии
+
     if (currentPage == totalPages || totalPages == 0) {
         li.classList.add('disabled');
     }
     li.append(btn);
-    // добавление кнопки "Последняя страница" в контейнер для кнопок
-    buttonsContainer.append(li);
-
-    // добавление всех кнопок в контейнер
-    paginationContainer.append(buttonsContainer);
+    buttonsContainer.append(li); 
+    paginationContainer.append(buttonsContainer); 
 }
 
-/**
- * Функция для отрисовки селектора для фильтрации маршрутов 
- * по достопримечательностям
- * @param {*} data - данные, которые необходимо отобразить
- */
+//отрисовка селектора для фильтрации маршрутов 
 function renderSelectorOfAvailableRoutes(data) {
-    // set используется для того, чтобы получить набор названий 
-    // достопримечательностей без повторений 
+
     let setMainObject = new Set();
     for (let i = 0; i < Object.keys(data).length; i++) {
         let mainObject = data[i]['mainObject'];
@@ -651,15 +481,11 @@ function renderSelectorOfAvailableRoutes(data) {
         }
     }
     let resultMainObject = [];
-    // перевод set в array
     setMainObject.forEach((value) => {
         resultMainObject.push(value);
     });
-    // сортировка массива по алфавиту
     resultMainObject.sort();
-    // запись текущего значения
-    let temp = landmarkSelect.value;
-    // зачистка прошлых элементов и создание первого "пустого"
+    let temp = landmarkSelect.value; 
     landmarkSelect.innerHTML = '';
     let optionElem = document.createElement('option');
     optionElem.innerHTML = '';
@@ -670,16 +496,12 @@ function renderSelectorOfAvailableRoutes(data) {
         optionElem.innerHTML = resultMainObject[i];
         landmarkSelect.append(optionElem);
     }
-    // возврат текущего значения
-    landmarkSelect.value = temp;
+    landmarkSelect.value = temp; // возврат текущего значения
 }
-
+//фильтрация по названию
 async function getAndFilterData(qParam) {
-    // запрос данных о доступных маршрутах
     let data = await dataExchangeWithTheServer('get', 'routes');
-    // если есть параметр
     if (qParam) {
-        // то данные фильтруются по названию
         data = data.filter(value =>
             value['name'].toUpperCase().includes(qParam.toUpperCase()));
     }
@@ -688,24 +510,16 @@ async function getAndFilterData(qParam) {
     return data;
 }
 
-/**
- * Функция для вывода ограниченного количества данных о доступных маршрутах
- * @param {number} page - нужная страница
- * @param {number} perPage - количество элементов на странице
- * @param {string} qParam - заменитель параметра "q", 
- * который обычно используется в url
- */
+//вывод ограниченного количества данных о доступных маршрутах
 async function generateAvailableRoutesOfXItem(page, perPage, qParam) {
     let data = await getAndFilterData(qParam);
-    // обнуление данных для отображения на странице
     let dataToRender = [];
-    // вычисление колическтва страниц
     let totalPages = Math.ceil(data.length / perPage);
-    // удаление старых уведомлений
+
     if (alertContainer.querySelector('.alert-item')) {
         alertContainer.querySelector('.alert-item').remove();
     }
-    // если значение страницы выходит за допустимые пределы
+
     if (page > totalPages && page < 1) {
         WalkingRoutes.innerHTML = 'Ошибка: выход за пределы доступных страниц';
     } else {
@@ -713,56 +527,41 @@ async function generateAvailableRoutesOfXItem(page, perPage, qParam) {
             WalkingRoutes.innerHTML = '';
             paginationContainer.innerHTML = '';
 
-            // клонирование шаблона уведомления
             let text = 'По данному запросу "' + qParam + '" ничего не \
             найдено :(\<br>Пожалуйста, попробуйте изменить запрос \
                     или зайдите позже.';
             showAlert('warning', text);
             return;
         }
-        // иначе добавляются данные для отображения в определнном количестве
+
         let max = Math.min(page * perPage, data.length);
         for (let i = (page - 1) * perPage; i < max; i++) {
             dataToRender.push(data[i]);
         }
-        // вызов функций отображения маршрутов и панели навигации по страницам
         renderAvailableRoutes(dataToRender);
         renderPaginationElement(page, totalPages);
     }
 }
 
-/**
- * Функция для обработки изменения значения селектора достопримечательностей
- * @param {object} event - событие
- */
+//обработка изменения значения селектора достопримечательностей
 function selectorOfAvailableRoutesHandler(event) {
     generateAvailableRoutesOfXItem(1, PER_PAGE, searchField.value);
 }
 
-/**
- * Функция-обработчик для кнопок навигации по странице
- * @param {object} event - событие 
- */
+//обработчик для кнопок навигации по странице
 function pageBtnHandler(event) {
-    // если нажата не клавиша навигации, то обработчик прекращает работу
     if (!event.target.classList.contains('page-link')) return;
-    // если клавиша неактивна, то обработчик прекращает работу
     if (event.target.classList.contains('disabled')) return;
-    // иначе, обработчик подгружает данные по нужной странице
-    generateAvailableRoutesOfXItem(event.target.dataset.page,
-        PER_PAGE,
-        searchField.value);
+    generateAvailableRoutesOfXItem(event.target.dataset.page, PER_PAGE, searchField.value);
 }
 
+//генерация селектора
 async function generateSelector() {
     let data = await getAndFilterData(searchField.value);
     renderSelectorOfAvailableRoutes(data);
 }
 
-/**
- * Функция-обработчик для поля поиска
- * @param {object} event - событие 
- */
+//поле поиска
 async function searchFieldHandler(event) {
     generateAvailableRoutesOfXItem(1,
         PER_PAGE,
@@ -770,57 +569,26 @@ async function searchFieldHandler(event) {
     generateSelector();
 }
 
-async function convertAddressInCoordinates(qParam) {
-    let url = new URL(GEOCODE_URL);
-    url.searchParams.set('q', qParam);
-    url.searchParams.set('key', API_KEY_2GIS);
-    console.log(url);
-    let data = await fetch(url).then(res => res.json()).then(answer => {
-        return answer;
-    });
-    let longitude;
-    let latitude;
-    if (data['meta']['code'] == 200) {
-        longitude = data['result']['items'][0]['point']['lon'];
-        latitude = data['result']['items'][0]['point']['lat'];
-    } else {
 
-        // В СЛУЧАЕ ОШИБКИ, ЧТОБЫ ПРОВЕРИТЬ РАБОТОСПОСОБНОСТЬ 
-        // ОСТАВШИХСЯ ФУНКЦИЙ БЕРУТСЯ ЗАДАННЫЕ МНОЙ ЗНАЧЕНИЯ
-        longitude = 55.784369;
-        latitude = 37.711060;
-    }
-}
-
+//делигирование
 window.onload = function () {
-    // первоначальная загрузка доступных маршрутов и селектора
     generateAvailableRoutesOfXItem(1, PER_PAGE);
     generateSelector();
-    // назначение обрабтчика на нажатие по панели навигации
     document.querySelector('.pagination-bar').onclick = pageBtnHandler;
-    // // назначение обработчика на нажание кнопки поиска (для карты)
-    // назначение обработчика на изменение в поле поиска
     searchField.oninput = searchFieldHandler;
-    // назначение обработчика на изменение селектора достопримечательностей
+
     landmarkSelect.onchange = selectorOfAvailableRoutesHandler;
     buttonCreateRequest.onclick = buttonSendRequestHandler;
-    // получение полей формы модального окна,
-    // у которых необходимо отслеживать изменения
-    document.querySelector('#excursion-date').onchange =
-        changeFieldRequestHandler;
-    document.querySelector('#start-time').onchange =
-        changeFieldRequestHandler;
-    document.querySelector('#duration').onchange =
-        changeFieldRequestHandler;
-    document.querySelector('#number-of-people').onchange =
-        changeFieldRequestHandler;
-    document.querySelector('#option-1').onchange =
-        changeFieldRequestHandler;
-    document.querySelector('#option-2').onchange =
-        changeFieldRequestHandler;
-    // назначение обработчика на кнопку "отмена" у модального окна
+
+    document.querySelector('#excursion-date').onchange = changeFieldRequestHandler;
+    document.querySelector('#start-time').onchange = changeFieldRequestHandler;
+    document.querySelector('#duration').onchange = changeFieldRequestHandler;
+    document.querySelector('#number-of-people').onchange = changeFieldRequestHandler;
+    document.querySelector('#option-1').onchange = changeFieldRequestHandler;
+    document.querySelector('#option-2').onchange = changeFieldRequestHandler;
+
     document.querySelector('#buttonCancel').onclick = function () {
-        // удаление старых уведомлений
+
         if (alertContainer.querySelector('.alert-item')) {
             alertContainer.querySelector('.alert-item').remove();
         };
