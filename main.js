@@ -190,12 +190,10 @@ function changeFieldRequestHandler(event) {
     };
     startTime.value = checkStartTime(concatDate);
     if (excursionDate.value != '' && startTime.value != '') {
-        let calculateTotalCost = calculateCost(priceGuide.value,
-            duration.value, numberOfPeople.value);
+        let calculateTotalCost = calculateCost(priceGuide.value, duration.value, numberOfPeople.value);
         if (option1.checked) calculateTotalCost *= 1.3;
         if (option2.checked) calculateTotalCost = calculateTotalCost + numberOfPeople.value * 1000 ;            
-        totalCost.value = String(Math.ceil(calculateTotalCost)) +
-            ' ' + rubleSymbol;
+        totalCost.value = String(Math.ceil(calculateTotalCost)) + ' ' + rubleSymbol;
         buttonCreateRequest.dataset.bsDismiss = 'modal';
     } else {
         delete buttonCreateRequest.dataset.bsDismiss;
