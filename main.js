@@ -204,10 +204,8 @@ function changeFieldRequestHandler(event) {
 //кнопки доп.опций
 async function buttonChooseGuideHandler(event) {
     let guideId = event.target.closest('.row').dataset.idGuide;
-    let dataGuide = await dataExchangeWithTheServer('get',
-        'guide', {}, guideId);
-    let dataRoute = await dataExchangeWithTheServer('get',
-        'route', {}, dataGuide.route_id);
+    let dataGuide = await dataExchangeWithTheServer('get', 'guide', {}, guideId);
+    let dataRoute = await dataExchangeWithTheServer('get', 'route', {}, dataGuide.route_id);
     let modalWindow = document.querySelector("#createRequest");
     modalWindow.querySelector('form').reset();
     let formInputs = modalWindow.querySelector("form").elements;
@@ -217,15 +215,11 @@ async function buttonChooseGuideHandler(event) {
     let routeName = formInputs['route-name'];
     let idRoute = formInputs['idRoute'];
     let excursionDate = formInputs['excursion-date'];
-    let option1Name = modalWindow.querySelector('#createRequest \
-        .option-1 .form-check-label');
-    let option1Desc = modalWindow.querySelector('#createRequest \
-        .option-1 .description');
+    let option1Name = modalWindow.querySelector('#createRequest .option-1 .form-check-label');
+    let option1Desc = modalWindow.querySelector('#createRequest .option-1 .description');
     let option1amount = formInputs['discount-amount-1'];
-    let option2Name = modalWindow.querySelector('#createRequest \
-        .option-2 .form-check-label');
-    let option2Desc = modalWindow.querySelector('#createRequest \
-        .option-2 .description');
+    let option2Name = modalWindow.querySelector('#createRequest .option-2 .form-check-label');
+    let option2Desc = modalWindow.querySelector('#createRequest .option-2 .description');
     let option2amount = formInputs['discount-amount-2'];
     fio.value = dataGuide.name;
     idGuide.value = dataGuide.id;
